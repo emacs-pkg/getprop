@@ -27,15 +27,28 @@
   $x
   )
 
+;; (defun !::replace ($spec $x)
+;;   (let ( $result )
+;;     (dolist ($e $spec (nreverse $result))
+;;       (if (eq $e '!)
+;;           (push $x $result)
+;;         (push $e $result)
+;;         )
+;;       )
+;;     )
+;;   )
+
 (defun !::replace ($spec $x)
-  (let ( $result )
-    (dolist ($e $spec (nreverse $result))
-      (if (eq $e '!)
-          (push $x $result)
-        (push $e $result)
-        )
-      )
-    )
+  (cond
+   ((null $spec)
+    nil)
+   ((eq $spec '!)
+    $x)
+   ((consp $spec)
+    (cons (!::replace (car $spec) $x)
+          (!::replace (cdr $spec) $x)))
+   (t $spec)
+   )
   )
 
 (defun !::specs ($specs)
@@ -49,7 +62,8 @@
 
 (defun !::spec ($spec)
   (cond
-   ((and (listp $spec) (memq '! $spec))
+   ;;((and (listp $spec) (memq '! $spec))
+   ((listp $spec)
     $spec)
    ((and (symbolp $spec) (string-match "^\\^" (symbol-name $spec)))
     `(,$spec !))
