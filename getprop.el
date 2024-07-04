@@ -3,6 +3,7 @@
 (defun getprop ($x $key)
   (cond
    ((eieio-object-p $x)
+    (if (stringp $key) (setf $key (intern (concat ":" $key))))
     (slot-value $x $key))
    ((hash-table-p $x)
     (gethash $key $x))
@@ -11,6 +12,7 @@
 (defun putprop ($x $key $store)
   (cond
    ((eieio-object-p $x)
+    (if (stringp $key) (setf $key (intern (concat ":" $key))))
     (set-slot-value $x $key $store))
    ((hash-table-p $x)
     (puthash $key $store $x))
@@ -26,17 +28,6 @@
     )
   $x
   )
-
-;; (defun !::replace ($spec $x)
-;;   (let ( $result )
-;;     (dolist ($e $spec (nreverse $result))
-;;       (if (eq $e '!)
-;;           (push $x $result)
-;;         (push $e $result)
-;;         )
-;;       )
-;;     )
-;;   )
 
 (defun !::replace ($spec $x)
   (cond
@@ -62,7 +53,6 @@
 
 (defun !::spec ($spec)
   (cond
-   ;;((and (listp $spec) (memq '! $spec))
    ((listp $spec)
     $spec)
    ((and (symbolp $spec) (string-match "^\\^" (symbol-name $spec)))
